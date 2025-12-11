@@ -6,7 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
-	apperrors "github.com/yourcompany/backend-core/pkg/errors"
+	apperrors "template/modules/core/pkg/errors"
 	"gorm.io/gorm"
 )
 
