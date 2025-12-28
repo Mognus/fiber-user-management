@@ -76,3 +76,12 @@ func (u *User) FullName() string {
 	}
 	return u.Email
 }
+
+// HashPassword hashes a plain text password
+func (u *User) HashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
+}

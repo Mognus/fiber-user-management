@@ -54,10 +54,17 @@ JWT_SECRET=your-secret-key-change-in-production
 
 ## API Endpoints
 
+### Authentication
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
 - `POST /api/auth/logout` - Logout user
 - `GET /api/auth/me` - Get current authenticated user
+
+### User Management (Admin Only)
+- `GET /api/users` - Get all users (with pagination and filters)
+- `GET /api/users/:id` - Get single user by ID
+- `PUT /api/users/:id` - Update user
+- `DELETE /api/users/:id` - Delete user (soft delete)
 
 ## Example Requests
 
@@ -122,9 +129,39 @@ type User struct {
 - Tokens stored in HTTP-only cookies
 - Set `Secure: true` in production with HTTPS
 
+## Frontend Components
+
+### User Management
+- `UserList` - Display all users with filtering and pagination
+- `UserEditModal` - Edit user details, role, and status
+- `UserDeleteButton` - Delete users with confirmation
+
+### Hooks
+- `useUsers(params)` - Fetch and manage users list
+- `useUser(id)` - Fetch single user by ID
+
+### Usage Example
+```tsx
+import { UserList } from '@/modules/auth-module/frontend/components/UserList'
+
+export default function AdminUsersPage() {
+  return (
+    <div className="container mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">User Management</h1>
+      <UserList />
+    </div>
+  )
+}
+```
+
 ## Dependencies
 
+### Backend
 - `github.com/yourcompany/backend-core` - Error handling
 - `github.com/golang-jwt/jwt/v5` - JWT handling
 - `golang.org/x/crypto` - Password hashing
 - `gorm.io/gorm` - ORM
+
+### Frontend
+- `react` - UI framework
+- `@/lib/api` - API client (axios)

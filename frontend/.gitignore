@@ -1,0 +1,5 @@
+# Symlink to node_modules
+node_modules
+
+# Module-specific tsconfig
+tsconfig.json
