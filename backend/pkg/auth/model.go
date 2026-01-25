@@ -18,16 +18,15 @@ const (
 
 // User represents a user with role-based access control
 type User struct {
-	ID        uint           `gorm:"primaryKey" json:"id"`
-	Email     string         `gorm:"uniqueIndex;size:255;not null" json:"email"`
-	Password  string         `gorm:"size:255;not null" json:"-"` // Never send password in JSON
-	FirstName string         `gorm:"size:100" json:"first_name"`
-	LastName  string         `gorm:"size:100" json:"last_name"`
-	Role      UserRole       `gorm:"type:varchar(20);default:'user'" json:"role"`
-	Active    bool           `gorm:"default:true" json:"active"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"` // Soft delete support
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Email     string    `gorm:"uniqueIndex;size:255;not null" json:"email"`
+	Password  string    `gorm:"size:255;not null" json:"-"` // Never send password in JSON
+	FirstName string    `gorm:"size:100" json:"first_name"`
+	LastName  string    `gorm:"size:100" json:"last_name"`
+	Role      UserRole  `gorm:"type:varchar(20);default:'user'" json:"role"`
+	Active    bool      `gorm:"default:true" json:"active"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // TableName - Custom table name
@@ -35,9 +34,10 @@ func (User) TableName() string {
 	return "users"
 }
 
-// BeforeCreate hook - Hash password before creating user
-func (u *User) BeforeCreate(tx *gorm.DB) error {
-	if u.Password != "" {
+// BeforeSave hook - Hash password before creating or updating user
+func (u *User) BeforeSave(tx *gorm.DB) error {
+	// Only hash if password is set and not already hashed (bcrypt hashes start with $2a$)
+	if u.Password != "" && len(u.Password) > 0 && u.Password[0] != '$' {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return err
