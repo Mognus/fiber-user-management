@@ -13,28 +13,45 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
+
+const loginSchema = z.object({
+    email: z.string().email("Bitte eine gültige E-Mail eingeben."),
+    password: z.string().min(1, "Passwort ist erforderlich."),
+});
+
+type LoginValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
     const router = useRouter();
     const { setUser } = useAuth();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const form = useForm<LoginValues>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email: "",
+            password: "",
+        },
+    });
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
+    const handleSubmit = async (values: LoginValues) => {
         setError(null);
-
         try {
-            const response = await authAPI.login({ email, password });
+            const response = await authAPI.login(values);
             setUser(response.user);
-            router.replace("/admin");
+            router.replace("/");
         } catch (err: any) {
             setError(err?.message || "Login failed");
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -43,8 +60,8 @@ export function LoginForm() {
             <div className="flex-1 min-h-0 flex items-center justify-center p-6">
                 <Card className="w-full max-w-md">
                     <CardHeader>
-                        <CardTitle className="text-2xl">Admin Login</CardTitle>
-                        <CardDescription>Sign in with your admin account.</CardDescription>
+                        <CardTitle className="text-2xl">Login</CardTitle>
+                        <CardDescription>Sign in with your account.</CardDescription>
                     </CardHeader>
                     <CardContent>
 
@@ -54,31 +71,45 @@ export function LoginForm() {
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Email</label>
-                                <Input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-6 space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Email</FormLabel>
+                                            <FormControl>
+                                                <Input type="email" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Password</label>
-                                <Input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
+                                <FormField
+                                    control={form.control}
+                                    name="password"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Password</FormLabel>
+                                            <FormControl>
+                                                <Input type="password" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
 
-                            <Button type="submit" className="w-full" disabled={loading}>
-                                {loading ? "Signing in..." : "Sign in"}
-                            </Button>
-                        </form>
+                                <Button
+                                    type="submit"
+                                    className="w-full"
+                                    disabled={form.formState.isSubmitting}
+                                >
+                                    {form.formState.isSubmitting ? "Signing in..." : "Sign in"}
+                                </Button>
+                            </form>
+                        </Form>
                     </CardContent>
                 </Card>
             </div>
