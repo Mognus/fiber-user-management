@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authAPI } from "../lib/api";
+import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,6 +16,7 @@ import {
 
 export function LoginForm() {
     const router = useRouter();
+    const { setUser } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
@@ -26,7 +28,8 @@ export function LoginForm() {
         setError(null);
 
         try {
-            await authAPI.login({ email, password });
+            const response = await authAPI.login({ email, password });
+            setUser(response.user);
             router.replace("/admin");
         } catch (err: any) {
             setError(err?.message || "Login failed");
