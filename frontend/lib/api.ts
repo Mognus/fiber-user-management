@@ -1,58 +1,22 @@
-import { api } from "@/lib/api";
-import type {
-  User,
-  LoginRequest,
-  RegisterRequest,
-  AuthResponse,
-  UpdateUserRequest,
-  UsersResponse,
-  UsersQueryParams,
-} from "../types";
+import { fetcher, mutateFetch } from '@/lib/api/fetcher'
+import type { User, LoginRequest, AuthResponse } from '../types'
 
 export const authAPI = {
-  // Register new user
-  register: async (data: RegisterRequest): Promise<AuthResponse> => {
-    const response = await api.post("/auth/register", data);
-    return response.data;
-  },
-
   // Login user
   login: async (data: LoginRequest): Promise<AuthResponse> => {
-    const response = await api.post("/auth/login", data);
-    return response.data;
+    return mutateFetch<AuthResponse>('/auth/login', {
+      method: 'POST',
+      body: data,
+    })
   },
 
   // Logout user
   logout: async (): Promise<void> => {
-    await api.post("/auth/logout");
+    await mutateFetch<void>('/auth/logout', { method: 'POST' })
   },
 
   // Get current user
   me: async (): Promise<User> => {
-    const response = await api.get("/auth/me");
-    return response.data;
+    return fetcher<User>('/auth/me')
   },
-
-  // Get all users (admin only)
-  getUsers: async (params?: UsersQueryParams): Promise<UsersResponse> => {
-    const response = await api.get("/users", { params });
-    return response.data;
-  },
-
-  // Get user by ID
-  getUser: async (id: number): Promise<User> => {
-    const response = await api.get(`/users/${id}`);
-    return response.data;
-  },
-
-  // Update user
-  updateUser: async (id: number, data: UpdateUserRequest): Promise<User> => {
-    const response = await api.put(`/users/${id}`, data);
-    return response.data;
-  },
-
-  // Delete user
-  deleteUser: async (id: number): Promise<void> => {
-    await api.delete(`/users/${id}`);
-  },
-};
+}

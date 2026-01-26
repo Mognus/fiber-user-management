@@ -164,4 +164,4 @@ export default function AdminUsersPage() {
 
 ### Frontend
 - `react` - UI framework
-- `@/lib/api` - API client (axios)
+- `@/lib/api/fetcher` - API client utilities (fetch-based)
