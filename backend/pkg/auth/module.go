@@ -4,10 +4,10 @@ import (
 	"errors"
 	"time"
 
+	apperrors "template/modules/core/pkg/errors"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
-	apperrors "template/modules/core/pkg/errors"
-	"template/modules/core/pkg/crud"
 	"gorm.io/gorm"
 )
 
@@ -16,6 +16,8 @@ type Module struct {
 	db            *gorm.DB
 	jwtSecret     string
 	jwtMiddleware fiber.Handler
+	userProvider  *UserProvider
+	roleProvider  *RoleProvider
 }
 
 // New creates a new Auth module instance
@@ -24,12 +26,22 @@ func New(db *gorm.DB, jwtSecret string) *Module {
 		db:            db,
 		jwtSecret:     jwtSecret,
 		jwtMiddleware: nil, // Will be set by SetJWTMiddleware
+		userProvider:  NewUserProvider(db),
+		roleProvider:  NewRoleProvider(db),
 	}
 }
 
 // SetJWTMiddleware sets the JWT middleware for protected routes
 func (m *Module) SetJWTMiddleware(middleware fiber.Handler) {
 	m.jwtMiddleware = middleware
+}
+
+func (m *Module) UserProvider() *UserProvider {
+	return m.userProvider
+}
+
+func (m *Module) RoleProvider() *RoleProvider {
+	return m.roleProvider
 }
 
 // Name returns the module name
@@ -54,17 +66,35 @@ func (m *Module) RegisterRoutes(router fiber.Router) {
 
 	// CRUD routes for users
 	users := router.Group("/users")
-	users.Get("/", m.ListHandler())
-	users.Get("/schema", m.SchemaHandler())
-	users.Get("/:id", m.GetHandler())
-	users.Post("/", m.CreateHandler())
-	users.Put("/:id", m.UpdateHandler())
-	users.Delete("/:id", m.DeleteHandler())
+	users.Get("/", m.userProvider.ListHandler())
+	users.Get("/schema", m.userProvider.SchemaHandler())
+	users.Get("/:id", m.userProvider.GetHandler())
+	users.Post("/", m.userProvider.CreateHandler())
+	users.Put("/:id", m.userProvider.UpdateHandler())
+	users.Delete("/:id", m.userProvider.DeleteHandler())
+
+	roles := router.Group("/roles")
+	roles.Get("/", m.roleProvider.ListHandler())
+	roles.Get("/schema", m.roleProvider.SchemaHandler())
+	roles.Get("/:id", m.roleProvider.GetHandler())
+	roles.Post("/", m.roleProvider.CreateHandler())
+	roles.Put("/:id", m.roleProvider.UpdateHandler())
+	roles.Delete("/:id", m.roleProvider.DeleteHandler())
 }
 
 // Migrate runs database migrations
 func (m *Module) Migrate(db *gorm.DB) error {
-	return db.AutoMigrate(&User{})
+	if err := db.AutoMigrate(&User{}, &Role{}); err != nil {
+		return err
+	}
+
+	for _, role := range defaultRoles() {
+		if err := db.FirstOrCreate(&role, Role{Name: role.Name}).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // RegisterRequest represents registration data
@@ -271,30 +301,4 @@ func (m *Module) setAuthCookie(c *fiber.Ctx, token string) {
 		Secure:   false, // Set to true in production with HTTPS
 		SameSite: "Lax",
 	})
-}
-
-// Handler method implementations using default helpers
-
-func (m *Module) ListHandler() fiber.Handler {
-	return crud.DefaultListHandler(m)
-}
-
-func (m *Module) SchemaHandler() fiber.Handler {
-	return crud.DefaultSchemaHandler(m)
-}
-
-func (m *Module) GetHandler() fiber.Handler {
-	return crud.DefaultGetHandler(m)
-}
-
-func (m *Module) CreateHandler() fiber.Handler {
-	return crud.DefaultCreateHandler(m)
-}
-
-func (m *Module) UpdateHandler() fiber.Handler {
-	return crud.DefaultUpdateHandler(m)
-}
-
-func (m *Module) DeleteHandler() fiber.Handler {
-	return crud.DefaultDeleteHandler(m)
 }
