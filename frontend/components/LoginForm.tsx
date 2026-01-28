@@ -24,18 +24,19 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-
-const loginSchema = z.object({
-    email: z.string().email("Bitte eine gültige E-Mail eingeben."),
-    password: z.string().min(1, "Passwort ist erforderlich."),
-});
-
-type LoginValues = z.infer<typeof loginSchema>;
+import { useTranslations } from "next-intl";
 
 export function LoginForm() {
+    const t = useTranslations("Auth.Login");
     const router = useRouter();
     const { setUser } = useAuth();
     const [error, setError] = useState<string | null>(null);
+    const loginSchema = z.object({
+        email: z.string().email(t("validation.email")),
+        password: z.string().min(1, t("validation.password")),
+    });
+
+    type LoginValues = z.infer<typeof loginSchema>;
     const form = useForm<LoginValues>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -51,7 +52,7 @@ export function LoginForm() {
             setUser(response.user);
             router.replace("/");
         } catch (err: any) {
-            setError(err?.message || "Login failed");
+            setError(err?.message || t("error.generic"));
         }
     };
 
@@ -60,11 +61,10 @@ export function LoginForm() {
             <div className="flex-1 min-h-0 flex items-center justify-center p-6">
                 <Card className="w-full max-w-md">
                     <CardHeader>
-                        <CardTitle className="text-2xl">Login</CardTitle>
-                        <CardDescription>Sign in with your account.</CardDescription>
+                        <CardTitle className="text-2xl">{t("title")}</CardTitle>
+                        <CardDescription>{t("description")}</CardDescription>
                     </CardHeader>
                     <CardContent>
-
                         {error && (
                             <div className="mt-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                                 {error}
@@ -78,7 +78,7 @@ export function LoginForm() {
                                     name="email"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Email</FormLabel>
+                                            <FormLabel>{t("fields.email")}</FormLabel>
                                             <FormControl>
                                                 <Input type="email" {...field} />
                                             </FormControl>
@@ -92,7 +92,7 @@ export function LoginForm() {
                                     name="password"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Password</FormLabel>
+                                            <FormLabel>{t("fields.password")}</FormLabel>
                                             <FormControl>
                                                 <Input type="password" {...field} />
                                             </FormControl>
@@ -106,7 +106,9 @@ export function LoginForm() {
                                     className="w-full"
                                     disabled={form.formState.isSubmitting}
                                 >
-                                    {form.formState.isSubmitting ? "Signing in..." : "Sign in"}
+                                    {form.formState.isSubmitting
+                                        ? t("actions.submitting")
+                                        : t("actions.submit")}
                                 </Button>
                             </form>
                         </Form>
