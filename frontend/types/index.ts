@@ -1,9 +1,17 @@
+export interface Role {
+  id: number
+  name: 'admin' | 'user' | 'guest'
+  created_at: string
+  updated_at: string
+}
+
 export interface User {
   id: number
   email: string
   first_name: string
   last_name: string
-  role: 'admin' | 'user' | 'guest'
+  role_id: number
+  role: Role
   active: boolean
   created_at: string
   updated_at: string

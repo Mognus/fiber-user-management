@@ -22,7 +22,7 @@ export function AuthProvider({ initialUser = null, children }: AuthProviderProps
         () => ({
             user,
             setUser,
-            isAdmin: user?.role === "admin",
+            isAdmin: user?.role?.name === "admin",
         }),
         [user]
     );

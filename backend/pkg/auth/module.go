@@ -148,13 +148,20 @@ func (m *Module) Register(c *fiber.Ctx) error {
 		return c.Status(appErr.Code).JSON(appErr)
 	}
 
+	// Get default "user" role
+	var defaultRole Role
+	if err := m.db.Where("name = ?", string(RoleUser)).First(&defaultRole).Error; err != nil {
+		appErr := apperrors.Internal(err)
+		return c.Status(appErr.Code).JSON(appErr)
+	}
+
 	// Create new user
 	user := User{
 		Email:     req.Email,
-		Password:  req.Password, // Will be hashed by BeforeCreate hook
+		Password:  req.Password, // Will be hashed by BeforeSave hook
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
-		Role:      RoleUser,
+		RoleID:    defaultRole.ID,
 		Active:    true,
 	}
 
@@ -162,6 +169,9 @@ func (m *Module) Register(c *fiber.Ctx) error {
 		appErr := apperrors.Internal(err)
 		return c.Status(appErr.Code).JSON(appErr)
 	}
+
+	// Load the Role relation for response
+	user.Role = defaultRole
 
 	// Generate JWT token
 	token, err := m.generateToken(&user)
@@ -198,9 +208,9 @@ func (m *Module) Login(c *fiber.Ctx) error {
 		return c.Status(appErr.Code).JSON(appErr)
 	}
 
-	// Find user by email
+	// Find user by email with Role preloaded
 	var user User
-	if err := m.db.Where("email = ?", req.Email).First(&user).Error; err != nil {
+	if err := m.db.Preload("Role").Where("email = ?", req.Email).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			appErr := apperrors.Unauthorized("Invalid email or password")
 			return c.Status(appErr.Code).JSON(appErr)
@@ -263,9 +273,9 @@ func (m *Module) Me(c *fiber.Ctx) error {
 	claims := user.Claims.(jwt.MapClaims)
 	userID := uint(claims["user_id"].(float64))
 
-	// Fetch user from database
+	// Fetch user from database with Role preloaded
 	var currentUser User
-	if err := m.db.First(&currentUser, userID).Error; err != nil {
+	if err := m.db.Preload("Role").First(&currentUser, userID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			appErr := apperrors.NotFound("User")
 			return c.Status(appErr.Code).JSON(appErr)
@@ -282,7 +292,7 @@ func (m *Module) generateToken(user *User) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": user.ID,
 		"email":   user.Email,
-		"role":    user.Role,
+		"role":    user.Role.Name,
 		"exp":     time.Now().Add(time.Hour * 24).Unix(), // 24 hours
 		"iat":     time.Now().Unix(),
 	}

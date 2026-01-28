@@ -32,19 +32,13 @@ func (p *UserProvider) GetSchema() crud.Schema {
 			{Name: "password", Type: "string", Label: "Password", Required: true, Editable: false, Width: "180px"},
 			{Name: "first_name", Type: "string", Label: "First Name", Editable: true, Width: "140px"},
 			{Name: "last_name", Type: "string", Label: "Last Name", Editable: true, Width: "140px"},
-			{
-				Name:       "role",
-				Type:       "enum",
-				Label:      "Role",
-				EnumValues: roleNames(),
-				Editable:   true,
-				Width:      "120px",
-			},
+			{Name: "role_id", Type: "number", Label: "Role ID", Editable: true, Width: "100px"},
+			{Name: "role", Type: "object", Label: "Role", Readonly: true, Editable: false, Width: "120px"},
 			{Name: "active", Type: "boolean", Label: "Active", Editable: true, Width: "100px"},
 			{Name: "created_at", Type: "date", Label: "Created", Readonly: true, Editable: true, Width: "160px"},
 			{Name: "updated_at", Type: "date", Label: "Updated", Readonly: true, Editable: true, Width: "160px"},
 		},
-		Filterable: []string{"role", "active"},
+		Filterable: []string{"role_id", "active"},
 		Searchable: []string{"email", "first_name", "last_name"},
 	}
 }
@@ -52,11 +46,11 @@ func (p *UserProvider) GetSchema() crud.Schema {
 // CRUD Operations using default implementations.
 
 func (p *UserProvider) List(filters map[string]string, page, limit int) (crud.ListResponse, error) {
-	return crud.DefaultList(p.db, &User{}, filters, page, limit)
+	return crud.DefaultList(p.db, &User{}, filters, page, limit, "Role")
 }
 
 func (p *UserProvider) Get(id string) (any, error) {
-	return crud.DefaultGet(p.db, &User{}, id)
+	return crud.DefaultGet(p.db, &User{}, id, "Role")
 }
 
 func (p *UserProvider) Create(data map[string]any) (any, error) {

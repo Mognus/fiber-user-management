@@ -14,7 +14,8 @@ type User struct {
 	Password  string    `gorm:"size:255;not null" json:"-"` // Never send password in JSON
 	FirstName string    `gorm:"size:100" json:"first_name"`
 	LastName  string    `gorm:"size:100" json:"last_name"`
-	Role      UserRole  `gorm:"type:varchar(20);default:'user'" json:"role"`
+	RoleID    uint      `gorm:"not null;default:2;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"role_id"`
+	Role      Role      `gorm:"foreignKey:RoleID" json:"role"`
 	Active    bool      `gorm:"default:true" json:"active"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -36,11 +37,6 @@ func (u *User) BeforeSave(tx *gorm.DB) error {
 		u.Password = string(hashedPassword)
 	}
 
-	// Set default role if not specified.
-	if u.Role == "" {
-		u.Role = RoleUser
-	}
-
 	return nil
 }
 
@@ -52,12 +48,12 @@ func (u *User) CheckPassword(password string) bool {
 
 // IsAdmin checks if user has admin role.
 func (u *User) IsAdmin() bool {
-	return u.Role == RoleAdmin
+	return u.Role.Name == string(RoleAdmin)
 }
 
 // IsUser checks if user has user role.
 func (u *User) IsUser() bool {
-	return u.Role == RoleUser
+	return u.Role.Name == string(RoleUser)
 }
 
 // FullName returns user's full name.

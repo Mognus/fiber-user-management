@@ -19,7 +19,7 @@ export function UserInfo() {
     return (
         <div className="text-sm">
             <span className="font-medium">{displayName}</span>
-            <span className="text-muted-foreground"> · {user.role}</span>
+            <span className="text-muted-foreground"> · {user.role.name}</span>
         </div>
     );
 }
