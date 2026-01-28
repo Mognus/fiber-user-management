@@ -23,6 +23,14 @@ func (p *UserProvider) GetModelName() string {
 
 // GetSchema implements crud.CRUDProvider.
 func (p *UserProvider) GetSchema() crud.Schema {
+	// Load roles for relation options
+	var roles []Role
+	p.db.Find(&roles)
+	roleOptions := make([]crud.SelectOption, len(roles))
+	for i, r := range roles {
+		roleOptions[i] = crud.SelectOption{Value: r.ID, Label: r.Name}
+	}
+
 	return crud.Schema{
 		Name:        "users",
 		DisplayName: "Users",
@@ -32,7 +40,7 @@ func (p *UserProvider) GetSchema() crud.Schema {
 			{Name: "password", Type: "string", Label: "Password", Required: true, Editable: false, Width: "180px"},
 			{Name: "first_name", Type: "string", Label: "First Name", Editable: true, Width: "140px"},
 			{Name: "last_name", Type: "string", Label: "Last Name", Editable: true, Width: "140px"},
-			{Name: "role_id", Type: "number", Label: "Role ID", Editable: true, Width: "100px"},
+			{Name: "role_id", Type: "relation", Label: "Role", Required: true, Editable: true, Hidden: true, Options: roleOptions},
 			{Name: "role", Type: "object", Label: "Role", Readonly: true, Editable: false, Width: "120px"},
 			{Name: "active", Type: "boolean", Label: "Active", Editable: true, Width: "100px"},
 			{Name: "created_at", Type: "date", Label: "Created", Readonly: true, Editable: true, Width: "160px"},
