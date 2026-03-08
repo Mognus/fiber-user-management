@@ -1,0 +1,1 @@
+FromFnLayer<fn(CookieJar, axum::http::Request<Body>, Next) -> impl std::future::Future<Output = Response<Body>> {auth_middleware}, (), (axum::http::Request<Body>, Next)>
