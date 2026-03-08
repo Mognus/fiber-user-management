@@ -1,7 +1,0 @@
-/home/magnus/Projects/NextJS-Go-Templating-Engine/template/modules/auth-module/backend-rust/target/debug/deps/once_cell-7b9a110c0e7fa83c.d: /home/magnus/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/once_cell-1.21.3/src/lib.rs /home/magnus/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/once_cell-1.21.3/src/imp_std.rs /home/magnus/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/once_cell-1.21.3/src/race.rs
-
-/home/magnus/Projects/NextJS-Go-Templating-Engine/template/modules/auth-module/backend-rust/target/debug/deps/libonce_cell-7b9a110c0e7fa83c.rmeta: /home/magnus/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/once_cell-1.21.3/src/lib.rs /home/magnus/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/once_cell-1.21.3/src/imp_std.rs /home/magnus/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/once_cell-1.21.3/src/race.rs
-
-/home/magnus/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/once_cell-1.21.3/src/lib.rs:
-/home/magnus/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/once_cell-1.21.3/src/imp_std.rs:
-/home/magnus/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/once_cell-1.21.3/src/race.rs:
