@@ -23,13 +23,7 @@ func (p *UserProvider) GetModelName() string {
 
 // GetSchema implements crud.CRUDProvider.
 func (p *UserProvider) GetSchema() crud.Schema {
-	// Load roles for relation options
-	var roles []Role
-	p.db.Find(&roles)
-	roleOptions := make([]crud.SelectOption, len(roles))
-	for i, r := range roles {
-		roleOptions[i] = crud.SelectOption{Value: r.ID, Label: r.Name}
-	}
+	roleOptions := crud.GetRelatedOptions(p.db, &Role{}, "ID", "Name")
 
 	return crud.Schema{
 		Name:        "users",
