@@ -27,10 +27,10 @@ func (p *RoleProvider) GetSchema() crud.Schema {
 		Name:        "roles",
 		DisplayName: "Roles",
 		Fields: []crud.Field{
-			{Name: "id", Type: "number", Label: "ID", Readonly: true, Editable: true, Width: "80px"},
-			{Name: "name", Type: "string", Label: "Name", Required: true, Editable: true, Width: "250px"},
-			{Name: "created_at", Type: "date", Label: "Created", Readonly: true, Editable: true, Width: "250px"},
-			{Name: "updated_at", Type: "date", Label: "Updated", Readonly: true, Editable: true, Width: "250px"},
+			{Name: "id", Type: "number", Label: "ID", Readonly: true, Width: "80px"},
+			{Name: "name", Type: "string", Label: "Name", Required: true, Width: "250px"},
+			{Name: "created_at", Type: "date", Label: "Created", Readonly: true, Width: "250px"},
+			{Name: "updated_at", Type: "date", Label: "Updated", Readonly: true, Width: "250px"},
 		},
 		Searchable: []string{"name"},
 	}
