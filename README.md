@@ -122,6 +122,30 @@ type User struct {
 - `user` - Standard user access
 - `guest` - Limited access
 
+## Using Middleware in Other Modules
+
+Pass the auth module to other modules to protect their routes:
+
+```go
+// main.go
+todoModule := todo.New(db, authModule)
+```
+
+```go
+// todo/module.go
+type Module struct {
+    db   *gorm.DB
+    auth *auth.Module // nil = no protection
+}
+
+func (m *Module) RegisterRoutes(router fiber.Router) {
+    g := router.Group("/todos")
+    g.Get("/", m.ListHandler())                                          // public
+    g.Post("/", m.auth.RequireAuth, m.CreateHandler())                   // login required
+    g.Delete("/:id", m.auth.RequireAuth, m.auth.RequireAdmin, m.DeleteHandler()) // admin only
+}
+```
+
 ## Security
 
 - Passwords are hashed with bcrypt before storage
