@@ -7,6 +7,11 @@ import (
 	"gorm.io/gorm"
 )
 
+var userListConfig = crud.ListConfig{
+	Preloads:   []string{"Role"},
+	Searchable: []string{"email", "first_name", "last_name"},
+}
+
 // UserProvider exposes CRUD operations for users.
 type UserProvider struct {
 	db *gorm.DB
@@ -41,14 +46,14 @@ func (p *UserProvider) GetSchema() crud.Schema {
 			{Name: "updated_at", Type: "date", Label: "Updated", Readonly: true},
 		},
 		Filterable: []string{"role_id", "active"},
-		Searchable: []string{"email", "first_name", "last_name"},
+		Searchable: userListConfig.Searchable,
 	}
 }
 
 // CRUD Operations using default implementations.
 
 func (p *UserProvider) List(filters map[string]string, page, limit int) (crud.ListResponse, error) {
-	return crud.DefaultList(p.db, &User{}, filters, page, limit, "Role")
+	return crud.DefaultList(p.db, &User{}, filters, page, limit, userListConfig)
 }
 
 func (p *UserProvider) Get(id string) (any, error) {

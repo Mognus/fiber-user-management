@@ -7,6 +7,10 @@ import (
 	"gorm.io/gorm"
 )
 
+var roleListConfig = crud.ListConfig{
+	Searchable: []string{"name"},
+}
+
 // RoleProvider exposes CRUD operations for roles.
 type RoleProvider struct {
 	db *gorm.DB
@@ -32,14 +36,14 @@ func (p *RoleProvider) GetSchema() crud.Schema {
 			{Name: "created_at", Type: "date", Label: "Created", Readonly: true},
 			{Name: "updated_at", Type: "date", Label: "Updated", Readonly: true},
 		},
-		Searchable: []string{"name"},
+		Searchable: roleListConfig.Searchable,
 	}
 }
 
 // CRUD Operations using default implementations.
 
 func (p *RoleProvider) List(filters map[string]string, page, limit int) (crud.ListResponse, error) {
-	return crud.DefaultList(p.db, &Role{}, filters, page, limit)
+	return crud.DefaultList(p.db, &Role{}, filters, page, limit, roleListConfig)
 }
 
 func (p *RoleProvider) Get(id string) (any, error) {
