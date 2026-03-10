@@ -36,6 +36,11 @@ func (m *Module) SetJWTMiddleware(middleware fiber.Handler) {
 	m.jwtMiddleware = middleware
 }
 
+// JWTMiddleware returns the stored JWT middleware, or nil if not set
+func (m *Module) JWTMiddleware() fiber.Handler {
+	return m.jwtMiddleware
+}
+
 func (m *Module) UserProvider() *UserProvider {
 	return m.userProvider
 }
